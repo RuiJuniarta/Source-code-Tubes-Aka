@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Algoritma Nilai Akhir Mahasiswa</title>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+        }
+
+        .container {
+            width: 600px;
+            margin: 30px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 22px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: gray;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .result, .analysis {
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        canvas {
+            margin-top: 25px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Algoritma Penghitungan Nilai Akhir Mahasiswa</h1>
+    <p class="subtitle">Pendekatan Iteratif dan Rekursif</p>
+
+    <label>Nilai Tugas</label>
+    <input type="number" id="tugas">
+
+    <label>Nilai UTS</label>
+    <input type="number" id="uts">
+
+    <label>Nilai UAS</label>
+    <input type="number" id="uas">
+
+    <button onclick="hitung()">Hitung Nilai Akhir</button>
+
+    <div class="result">
+        <h3>Hasil</h3>
+        <p id="iteratif"></p>
+        <p id="rekursif"></p>
+    </div>
+
+    <div class="analysis">
+        <h3>Analisis Efisiensi</h3>
+        <p>
+            Algoritma iteratif dan rekursif memiliki kompleksitas waktu O(n).
+            Namun, algoritma rekursif membutuhkan memori tambahan untuk stack pemanggilan fungsi.
+        </p>
+    </div>
+
+    <canvas id="runtimeChart"></canvas>
+</div>
+
+<script>
+function hitung() {
+    const tugas = parseFloat(document.getElementById("tugas").value);
+    const uts = parseFloat(document.getElementById("uts").value);
+    const uas = parseFloat(document.getElementById("uas").value);
+
+    const data = [
+        tugas * 0.3,
+        uts * 0.3,
+        uas * 0.4
+    ];
+
+    document.getElementById("iteratif").innerText =
+        "Nilai Akhir (Iteratif): " + hitungIteratif(data).toFixed(2);
+
+    document.getElementById("rekursif").innerText =
+        "Nilai Akhir (Rekursif): " + hitungRekursif(data, 0).toFixed(2);
+
+    tampilkanGrafik();
+}
+
+// Iteratif
+function hitungIteratif(arr) {
+    let total = 0;
+    for (let i = 0; i < arr.length; i++) {
+        total += arr[i];
+    }
+    return total;
+}
+
+// Rekursif
+function hitungRekursif(arr, index) {
+    if (index === arr.length) return 0;
+    return arr[index] + hitungRekursif(arr, index + 1);
+}
+
+// Grafik Running Time
+function tampilkanGrafik() {
+    const ukuran = [1, 10, 20, 50, 100, 500, 1000];
+    let waktuIteratif = [];
+    let waktuRekursif = [];
+
+    ukuran.forEach(n => {
+        let arr = new Array(n).fill(1);
+
+        let start = performance.now();
+        hitungIteratif(arr);
+        waktuIteratif.push(performance.now() - start);
+
+        start = performance.now();
+        hitungRekursif(arr, 0);
+        waktuRekursif.push(performance.now() - start);
+    });
+
+    const ctx = document.getElementById("runtimeChart").getContext("2d");
+
+    if (window.chart) window.chart.destroy();
+
+    window.chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ukuran,
+            datasets: [
+                {
+                    label: 'Iteratif',
+                    data: waktuIteratif,
+                    borderWidth: 2
+                },
+                {
+                    label: 'Rekursif',
+                    data: waktuRekursif,
+                    borderWidth: 2
+                }
+            ]
+        },
+        options: {
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Grafik Perbandingan Running Time'
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Ukuran Input (n)'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Waktu Eksekusi (ms)'
+                    }
+                }
+            }
+        }
+    });
+}
+</script>
+
+</body>
+</html>
